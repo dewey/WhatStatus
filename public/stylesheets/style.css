@@ -3,7 +3,6 @@
     margin-bottom: 0;
     margin-right: auto;
     margin-top: 50px;
-    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
     width: 600px;
 }
 #content-stats {
@@ -11,7 +10,6 @@
     margin-bottom: 0;
     margin-right: auto;
     margin-top: 50px;
-    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
     width: 500px;
 }
 #service_table {
@@ -30,7 +28,7 @@
     color: #089a00;
     font-weight: bold;
 }
-#info {
+.footer-info {
     text-align: center;
     font-size: 10px;
     margin-top: 50px;
@@ -49,7 +47,6 @@
 }
 #twitter {
     margin-top: 2px;
-    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
 }
 #twitterh {
     font-weight: bold;
@@ -68,7 +65,9 @@ body {
     background: #343434;
     color: #757575;
     text-shadow: #111 0px 1px 0px;
+    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
 }
+
 a:link, a:visited {
     color: #999;
     text-decoration: none;

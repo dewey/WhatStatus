@@ -4,9 +4,6 @@
  */
 
 var express = require('express')
-    // , routes = require('./routes')
-    // , index = require('./routes/index')
-    // , stats = require('./routes/stats')
     , http = require('http')
     , path = require('path')
     , net = require('net')
@@ -33,48 +30,101 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-// app.get('/', function(req, res) {
-//     db.get("site-status", function(error, response) {
-//         if(response) {
-//             res.render('index', {
-//                 test: response
-//             });
-//         } else {
-//             res.render('index', {
-//                 test: error
-//             });
-//         }
-//     });
-// });
+var site_status = "asdf";
 
-// app.get('/', function (req, res) {
-//     res.render(index);
-// });
-// app.get('/', routes.index);
+var status = {
+  site : {
+    status : "",
+    url : ""
+  },
+  tracker : {
+    status : "",
+    url : ""
+  },
+  irc : {
+    status : "",
+    url : ""
+  }
+}
+
+function setUpVars(component) {
+  component.status = "Up";
+  component.url = "images/up.png";
+}
+
+function setDownVars(component) {
+  component.status = "Down";
+  component.url = "images/down.png";
+}
+
+function setMaintenanceVars(component) {
+  component.status = "Maintenance";
+  component.url = "images/maintenance.png";
+}
+
+db.get("site-status", function(err, reply) {
+    if(reply == 1) {
+      setUpVars(status.site);
+    } else if (reply == 0) {
+      setDownVars(status.site);
+    } else {
+      setMaintenanceVars(status.site);
+    }
+});
+
+db.get("tracker-status", function(err, reply) {
+    if(reply == 1) {
+      setUpVars(status.tracker);
+    } else if (reply == 0) {
+      setDownVars(status.tracker);
+    } else {
+      setMaintenanceVars(status.tracker);
+    }
+});
+
+db.get("irc-status", function(err, reply) {
+    if(reply == 1) {
+      setUpVars(status.irc);
+    } else if (reply == 0) {
+      setDownVars(status.irc);
+    } else {
+      setMaintenanceVars(status.irc);
+    }
+});
+
 
 app.get('/', function (req, res) {
-  res.render('index', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
-  // res.send("respond with a resource");
+  res.render('index', { title:'WhatStatus',
+                        tracker_status:status.tracker.status,
+                        tracker_status_url:status.tracker.url,
+                        site_status:status.site.status,
+                        site_status_url:status.site.url,
+                        irc_status:status.irc.status,
+                        irc_status_url:status.irc.url,
+                        logo_url:"images/logo.png"
+                      });
 })
 
-app.get('/stats', function (req, res) {
-  res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
-  // res.send("respond with a resource");
-})
+// app.get('/stats', function (req, res) {
+//   res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
+//   // res.send("respond with a resource");
+// })
 
 
-// new cronJob('1 * * * * *', function(){
-//     // Get Site Status
-//     request('https://what.cd', function (error, response) {
-//         if (!error && response.statusCode == 200) {
-//             console.log("Site: Up")
-//             db.set("site-status", "up")
-//         } else {
-//             console.log("Site: Down")
-//             db.set("site-status", "down")
-//         }
-//     });
-// }, null, true, "Europe/Vienna");
+new cronJob('1 * * * * *', function(){
+    // Get Site Status
+    request('https://what.cd', function (error, response) {
+        if (!error && response.statusCode == 200) {
+            db.set("site-status", "1")
+            //debug
+            db.set("tracker-status", "0")
+            db.set("irc-status", "0")
+        } else {
+            console.log("Site: Down")
+            db.set("site-status", "0")
+        }
+    });
+}, null, true, "Europe/Vienna");
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

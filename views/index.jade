@@ -1,10 +1,24 @@
 extends layout
 
 block body-content
-    p.status Status:
-
-    p Site: #{site_status}
-
-    p Tracker: #{tracker_status}
-
-    p IRC: #{irc_status}
+    div#content
+        img(src='#{logo_url}')#logo
+        div#status
+            table#service_table
+                tr
+                    td.icon
+                        img(src='#{site_status_url}')
+                    td.service Site - what.cd
+                    td.status #{site_status}
+                tr
+                    td.icon
+                        img(src='#{tracker_status_url}')
+                    td.service Tracker - tracker.what.cd
+                    td.status #{tracker_status}
+                tr
+                    td.icon
+                        img(src='#{irc_status_url}')
+                    td.service IRC - irc.what-network.net
+                    td.status #{irc_status}
+        div.disclaimer
+            p This site is unofficial and is not affiliated with What.cd.

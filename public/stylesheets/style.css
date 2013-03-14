@@ -1,0 +1,100 @@
+#content {
+    margin-left: auto;
+    margin-bottom: 0;
+    margin-right: auto;
+    margin-top: 50px;
+    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+    width: 600px;
+}
+#content-stats {
+    margin-left: auto;
+    margin-bottom: 0;
+    margin-right: auto;
+    margin-top: 50px;
+    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+    width: 500px;
+}
+#service_table {
+    margin-top: 50px;
+    width: 100%;
+}
+.down {
+    font-weight: bold;
+    color: #ff1600;
+}
+.maintenance {
+    font-weight: bold;
+    color: #ff1600;
+}
+.up {
+    color: #089a00;
+    font-weight: bold;
+}
+#info {
+    text-align: center;
+    font-size: 10px;
+    margin-top: 50px;
+}
+#twitter .hash {
+    color: #6c6c6c;
+} 
+#twitter .reply {
+    color: #6c6c6c;
+}
+.tweetList {
+    padding-left: 0px;
+    margin-left: 0px;
+    list-style-position: inside;
+    list-style-type: none;
+}
+#twitter {
+    margin-top: 2px;
+    font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+}
+#twitterh {
+    font-weight: bold;
+    margin-top: 50px;
+}
+#twitter small {
+    border-top-style: none;
+    font-size: 10px;
+}
+#share {
+    margin-bottom: 10px;
+    text-align: center; margin-top: 10px;
+}
+
+body {
+    background: #343434;
+    color: #757575;
+    text-shadow: #111 0px 1px 0px;
+}
+a:link, a:visited {
+    color: #999;
+    text-decoration: none;
+}
+a:hover, a:visited:hover {
+    color: #aaa;
+}
+.disclaimer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 10px;
+}
+th {
+    text-align: left;
+}
+.stats-table td {
+    width: 500px;
+}
+h3 {
+    padding-top: 0px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+.cell-uptime {
+    text-align: right;
+}

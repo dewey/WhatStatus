@@ -5,6 +5,7 @@
 
 var express = require('express')
     , http = require('http')
+    , net = require('net')
     , path = require('path')
     , net = require('net')
     , redis = require('redis')
@@ -30,20 +31,18 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-var site_status = "asdf";
-
 var status = {
   site : {
-    status : "",
-    url : ""
+    status : "Updating...",
+    url : "images/updating.png"
   },
   tracker : {
-    status : "",
-    url : ""
+    status : "Updating...",
+    url : "images/updating.png"
   },
   irc : {
-    status : "",
-    url : ""
+    status : "Updating...",
+    url : "images/updating.png"
   }
 }
 
@@ -62,36 +61,37 @@ function setMaintenanceVars(component) {
   component.url = "images/maintenance.png";
 }
 
-db.get("site-status", function(err, reply) {
-    if(reply == 1) {
-      setUpVars(status.site);
-    } else if (reply == 0) {
-      setDownVars(status.site);
-    } else {
-      setMaintenanceVars(status.site);
-    }
-});
+function update() {
+  db.get("site-status", function(err, reply) {
+      if(reply == 1) {
+        setUpVars(status.site);
+      } else if (reply == 0) {
+        setDownVars(status.site);
+      } else {
+        setMaintenanceVars(status.site);
+      }
+  });
 
-db.get("tracker-status", function(err, reply) {
-    if(reply == 1) {
-      setUpVars(status.tracker);
-    } else if (reply == 0) {
-      setDownVars(status.tracker);
-    } else {
-      setMaintenanceVars(status.tracker);
-    }
-});
+  db.get("tracker-status", function(err, reply) {
+      if(reply == 1) {
+        setUpVars(status.tracker);
+      } else if (reply == 0) {
+        setDownVars(status.tracker);
+      } else {
+        setMaintenanceVars(status.tracker);
+      }
+  });
 
-db.get("irc-status", function(err, reply) {
-    if(reply == 1) {
-      setUpVars(status.irc);
-    } else if (reply == 0) {
-      setDownVars(status.irc);
-    } else {
-      setMaintenanceVars(status.irc);
-    }
-});
-
+  db.get("irc-status", function(err, reply) {
+      if(reply == 1) {
+        setUpVars(status.irc);
+      } else if (reply == 0) {
+        setDownVars(status.irc);
+      } else {
+        setMaintenanceVars(status.irc);
+      }
+  });
+}
 
 app.get('/', function (req, res) {
   res.render('index', { title:'WhatStatus',
@@ -115,15 +115,54 @@ new cronJob('1 * * * * *', function(){
     // Get Site Status
     request('https://what.cd', function (error, response) {
         if (!error && response.statusCode == 200) {
+            console.log("[Sitecheck] Site up");
             db.set("site-status", "1")
-            //debug
-            db.set("tracker-status", "0")
-            db.set("irc-status", "0")
         } else {
-            console.log("Site: Down")
             db.set("site-status", "0")
+            console.log("[Sitecheck] Site down");
         }
     });
+
+    // Get Tracker Status
+    var client = net.connect(34000, 'tracker.what.cd', function() {
+      db.set("tracker-status", "1")
+      console.log('[Trackercheck] Socket started');
+    });
+    client.on('end', function() {
+      console.log('[Trackercheck] Socket closed');
+    });
+    client.on('error', function() {
+      console.log('[Trackercheck] Error');
+      db.set("tracker-status", "0");
+      client.end();
+    });
+    client.on('timeout', function() {
+      console.log('[Trackercheck] Timeout');
+      db.set("tracker-status", "0");
+      client.end();
+    });
+
+    // Get IRC Status
+    var client = net.connect(6667, 'irc.what.cd', function() {
+      db.set("irc-status", "1")
+      console.log('[IRCcheck] Socket started');
+    });
+    client.on('end', function() {
+      console.log('[IRCcheck] Socket closed');
+    });
+    client.on('error', function() {
+      console.log('[IRCcheck] Error');
+      db.set("irc-status", "0");
+      client.end();
+    });
+    client.on('timeout', function() {
+      console.log('[IRCcheck] Timeout');
+      db.set("irc-status", "0");
+      client.end();
+    });
+
+    // Get new values from Redis
+    update();
 }, null, true, "Europe/Vienna");
 
 http.createServer(app).listen(app.get('port'), function(){

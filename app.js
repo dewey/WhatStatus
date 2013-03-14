@@ -4,7 +4,7 @@
  */
 
 var express = require('express')
-    , routes = require('./routes')
+    // , routes = require('./routes')
     // , index = require('./routes/index')
     // , stats = require('./routes/stats')
     , http = require('http')
@@ -54,6 +54,11 @@ app.configure('development', function(){
 
 app.get('/', function (req, res) {
   res.render('index', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
+  // res.send("respond with a resource");
+})
+
+app.get('/stats', function (req, res) {
+  res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
   // res.send("respond with a resource");
 })
 

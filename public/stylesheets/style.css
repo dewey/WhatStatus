@@ -85,4 +85,15 @@ h3 {
     margin: 0 auto;
 }
 
+.logo {
+    height: 140px;
+    margin: 0 auto;
+    width: 550px;
+    text-align: center;
+}
+
+.logo img {
+    height: 100%;
+}
+
 

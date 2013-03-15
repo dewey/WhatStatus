@@ -62,6 +62,11 @@ function setMaintenanceVars(component) {
   component.url = "images/maintenance.png";
 }
 
+// If there's an outtage reset uptime record counter.
+function reset_uptime(component) {
+  db.set('uptime:' + component, 0);
+}
+
 function update() {
   db.get("site-status", function(err, reply) {
       if(reply == 1) {
@@ -106,19 +111,23 @@ app.get('/', function (req, res) {
                       });
 })
 
-// app.get('/stats', function (req, res) {
-//   res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
-//   // res.send("respond with a resource");
-// })
+app.get('/stats', function (req, res) {
+  res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
+  // res.send("respond with a resource");
+})
+
+
+// Check all components every minute
 
 var site_status_counter = 0;
 var tracker_status_counter = 0;
 var irc_status_counter = 0;
 
+// Check Site Components
 new cronJob('1 * * * * *', function(){
     
     // Get Site Status
-    request('https://what.cd', function (error, response) {
+    request('https://what.cdaaaa', function (error, response) {
         if (!error && response.statusCode == 200) {
             console.log("[Sitecheck] Site up");
             db.set("site-status", "1")
@@ -129,6 +138,7 @@ new cronJob('1 * * * * *', function(){
             console.log("[Sitecheck] Status counter: " + site_status_counter);
             if(site_status_counter > 2) {
               db.set("site-status", "0")
+              reset_uptime('site');
               console.log("[Sitecheck] Site down");
             }
         }
@@ -147,12 +157,12 @@ new cronJob('1 * * * * *', function(){
     });
     client.on('error', function() {
       console.log('[Trackercheck] Error');
-      db.set("tracker-status", "0");
       
       tracker_status_counter++;
       console.log("[Trackercheck] Status counter: " + tracker_status_counter);
       if(tracker_status_counter > 2) {
               db.set("tracker-status", "0")
+              reset_uptime('tracker');
               console.log("[Trackercheck] Tracker down");
       }
 
@@ -160,12 +170,12 @@ new cronJob('1 * * * * *', function(){
     });
     client.on('timeout', function() {
       console.log('[Trackercheck] Timeout');
-      db.set("tracker-status", "0");
       
       tracker_status_counter++;
       console.log("[Trackercheck] Status counter: " + tracker_status_counter);
       if(tracker_status_counter > 2) {
               db.set("tracker-status", "0")
+              reset_uptime('tracker');
               console.log("[Trackercheck] Tracker down");
       }
 
@@ -185,12 +195,12 @@ new cronJob('1 * * * * *', function(){
     });
     client.on('error', function() {
       console.log('[IRCcheck] Error');
-      db.set("irc-status", "0");
 
       irc_status_counter++;
       console.log("[IRCcheck] Status counter: " + irc_status_counter);
       if(irc_status_counter > 2) {
               db.set("irc-status", "0")
+              reset_uptime('irc');
               console.log("[IRCcheck] IRC down");
       }
 
@@ -198,12 +208,12 @@ new cronJob('1 * * * * *', function(){
     });
     client.on('timeout', function() {
       console.log('[IRCcheck] Timeout');
-      db.set("irc-status", "0");
 
       irc_status_counter++;
       console.log("[IRCcheck] Status counter: " + irc_status_counter);
       if(irc_status_counter > 2) {
               db.set("irc-status", "0")
+              reset_uptime('irc');
               console.log("[IRCcheck] IRC down");
       }
 
@@ -214,6 +224,62 @@ new cronJob('1 * * * * *', function(){
     update();
 }, null, true, "Europe/Vienna");
 
+// Statistics
+new cronJob('1 * * * * *', function(){
+
+  // Hourly Increment Uptime if Component is Up
+  db.get("site-status", function(err, site_status) {
+    if(site_status != 0) {
+      db.incr('uptime:site');
+    }
+  });
+
+  // Hourly Increment Uptime if Component is Up
+  db.get("tracker-status", function(err, tracker_status) {
+    if(tracker_status != 0) {
+      db.incr('uptime:tracker');
+    }
+  });
+
+  // Hourly Increment Uptime if Component is Up
+  db.get("irc-status", function(err, irc_status) {
+    if(irc_status != 0) {
+      db.incr('uptime:irc');
+    }
+  });
+
+
+
+  // Update Site Uptime Record
+  db.get("uptime:site", function(err, uptime_site) {
+    db.get("uptimerecord:site", function(err, uptimerecord_site) {
+      if(uptime_site > uptimerecord_site) {
+        db.set('uptimerecord:site', uptime_site);
+      }
+    });
+  });
+
+  // Update Tracker Uptime Record
+  db.get("uptime:tracker", function(err, uptime_tracker) {
+    db.get("uptimerecord:tracker", function(err, uptimerecord_tracker) {
+      if(uptime_tracker > uptimerecord_tracker) {
+        db.set('uptimerecord:tracker', uptime_tracker);
+      }
+    });
+  });
+
+  // Update IRC Uptime Record
+  db.get("uptime:irc", function(err, uptime_irc) {
+    db.get("uptimerecord:irc", function(err, uptimerecord_irc) {
+      if(uptime_irc > uptimerecord_irc) {
+        db.set('uptimerecord:irc', uptime_irc);
+      }
+    });
+  });
+
+
+}, null, true, "Europe/Vienna");
+
 http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+  console.log("Express server listening on port: " + app.get('port'));
 });

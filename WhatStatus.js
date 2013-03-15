@@ -225,7 +225,12 @@ new cronJob('1 * * * * *', function(){
     update();
 }, null, true, "Europe/Vienna");
 
-// Statistics (Cronjob running hourly)
+/*
+Statistics (hourly)
+
+This cronjob is incrementing the uptime counters for the various monitored components
+and updating the uptime records if the current uptime > the old record.
+*/
 new cronJob('1 * * * * *', function(){
 
   // Hourly Increment Uptime if Component is Up
@@ -248,7 +253,6 @@ new cronJob('1 * * * * *', function(){
       db.incr('uptime:irc');
     }
   });
-
 
   // Update Site Uptime Record
   db.get("uptime:site", function(err, uptime_site) {
@@ -277,7 +281,11 @@ new cronJob('1 * * * * *', function(){
     });
   });
 
-  // Building string for Google Charts used to graph tracker uptime.
+
+  /*
+  Building string for Google Charts used to graph tracker uptime.
+  String written to redis: DD.MM|int where int is the current tracker uptime.
+  */
   db.get("uptime:tracker", function(err, uptime_tracker) {
     // Initialize new timestamp
     var now = new Date().format("DD.MM");

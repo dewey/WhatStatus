@@ -1,10 +1,12 @@
 extends layout
 
 block body-content
+    a(href="https://twitter.com/#!/StatusWhat")
+        img(src="images/twitter.png", alt="Follow us on Twitter!", class="follow-us")
     div#content
         img(src='#{logo_url}')#logo
-        div#status
-            table#service_table
+        div.status-dashboard
+            table.service-table
                 tr
                     td.icon
                         img(src='#{site_status_url}')
@@ -22,3 +24,7 @@ block body-content
                     td.status #{irc_status}
         div.disclaimer
             p This site is unofficial and is not affiliated with What.cd.
+        div.twitter
+            a.twitter-timeline(href='https://twitter.com/whatcd', data-widget-id='312563216838434816') Tweets by @whatcd
+            script
+                !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>

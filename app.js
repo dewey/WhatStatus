@@ -110,16 +110,26 @@ app.get('/', function (req, res) {
 //   // res.send("respond with a resource");
 // })
 
+var site_status_counter = 0;
+var tracker_status_counter = 0;
+var irc_status_counter = 0;
 
 new cronJob('1 * * * * *', function(){
+    
     // Get Site Status
     request('https://what.cd', function (error, response) {
         if (!error && response.statusCode == 200) {
             console.log("[Sitecheck] Site up");
             db.set("site-status", "1")
+            site_status_counter = 0;
+            console.log("[Sitecheck] Status counter: " + site_status_counter);
         } else {
-            db.set("site-status", "0")
-            console.log("[Sitecheck] Site down");
+            site_status_counter++;
+            console.log("[Sitecheck] Status counter: " + site_status_counter);
+            if(site_status_counter > 2) {
+              db.set("site-status", "0")
+              console.log("[Sitecheck] Site down");
+            }
         }
     });
 
@@ -127,18 +137,37 @@ new cronJob('1 * * * * *', function(){
     var client = net.connect(34000, 'tracker.what.cd', function() {
       db.set("tracker-status", "1")
       console.log('[Trackercheck] Socket started');
+      
+      tracker_status_counter = 0;
+      console.log("[Trackercheck] Status counter: " + tracker_status_counter);
     });
     client.on('end', function() {
-      console.log('[Trackercheck] Socket closed');
+      // console.log('[Trackercheck] Socket closed');
     });
     client.on('error', function() {
       console.log('[Trackercheck] Error');
       db.set("tracker-status", "0");
+      
+      tracker_status_counter++;
+      console.log("[Trackercheck] Status counter: " + tracker_status_counter);
+      if(tracker_status_counter > 2) {
+              db.set("tracker-status", "0")
+              console.log("[Trackercheck] Tracker down");
+      }
+
       client.end();
     });
     client.on('timeout', function() {
       console.log('[Trackercheck] Timeout');
       db.set("tracker-status", "0");
+      
+      tracker_status_counter++;
+      console.log("[Trackercheck] Status counter: " + tracker_status_counter);
+      if(tracker_status_counter > 2) {
+              db.set("tracker-status", "0")
+              console.log("[Trackercheck] Tracker down");
+      }
+
       client.end();
     });
 
@@ -146,18 +175,37 @@ new cronJob('1 * * * * *', function(){
     var client = net.connect(6667, 'irc.what.cd', function() {
       db.set("irc-status", "1")
       console.log('[IRCcheck] Socket started');
+
+      irc_status_counter = 0;
+      console.log("[IRCcheck] IRC counter: " + irc_status_counter);
     });
     client.on('end', function() {
-      console.log('[IRCcheck] Socket closed');
+      // console.log('[IRCcheck] Socket closed');
     });
     client.on('error', function() {
       console.log('[IRCcheck] Error');
       db.set("irc-status", "0");
+
+      irc_status_counter++;
+      console.log("[IRCcheck] Status counter: " + irc_status_counter);
+      if(irc_status_counter > 2) {
+              db.set("irc-status", "0")
+              console.log("[IRCcheck] IRC down");
+      }
+
       client.end();
     });
     client.on('timeout', function() {
       console.log('[IRCcheck] Timeout');
       db.set("irc-status", "0");
+
+      irc_status_counter++;
+      console.log("[IRCcheck] Status counter: " + irc_status_counter);
+      if(irc_status_counter > 2) {
+              db.set("irc-status", "0")
+              console.log("[IRCcheck] IRC down");
+      }
+
       client.end();
     });
 

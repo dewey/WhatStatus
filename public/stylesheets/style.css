@@ -12,7 +12,7 @@
     margin-top: 50px;
     width: 500px;
 }
-#service_table {
+.service-table {
     margin-top: 50px;
     width: 100%;
 }
@@ -32,33 +32,6 @@
     text-align: center;
     font-size: 10px;
     margin-top: 50px;
-}
-#twitter .hash {
-    color: #6c6c6c;
-} 
-#twitter .reply {
-    color: #6c6c6c;
-}
-.tweetList {
-    padding-left: 0px;
-    margin-left: 0px;
-    list-style-position: inside;
-    list-style-type: none;
-}
-#twitter {
-    margin-top: 2px;
-}
-#twitterh {
-    font-weight: bold;
-    margin-top: 50px;
-}
-#twitter small {
-    border-top-style: none;
-    font-size: 10px;
-}
-#share {
-    margin-bottom: 10px;
-    text-align: center; margin-top: 10px;
 }
 
 body {
@@ -94,6 +67,22 @@ h3 {
     margin-bottom: 10px;
     margin-top: 20px;
 }
-.cell-uptime {
-    text-align: right;
+
+.follow-us {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 0;
 }
+
+.twitter{
+    width: 550px;
+    margin: 0 auto
+}
+
+.status-dashboard {
+    width: 550px;
+    margin: 0 auto;
+}
+
+

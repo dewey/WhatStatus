@@ -10,6 +10,7 @@ var express = require('express')
     , net = require('net')
     , redis = require('redis')
     , cronJob = require('cron').CronJob
+    , date = require('date-format-lite')
     , request = require('request');
 
 var app = express();
@@ -123,7 +124,7 @@ var site_status_counter = 0;
 var tracker_status_counter = 0;
 var irc_status_counter = 0;
 
-// Check Site Components
+// Check Site Components (Cronjob running every minute)
 new cronJob('1 * * * * *', function(){
     
     // Get Site Status
@@ -224,7 +225,7 @@ new cronJob('1 * * * * *', function(){
     update();
 }, null, true, "Europe/Vienna");
 
-// Statistics
+// Statistics (Cronjob running hourly)
 new cronJob('1 * * * * *', function(){
 
   // Hourly Increment Uptime if Component is Up
@@ -247,7 +248,6 @@ new cronJob('1 * * * * *', function(){
       db.incr('uptime:irc');
     }
   });
-
 
 
   // Update Site Uptime Record
@@ -273,6 +273,20 @@ new cronJob('1 * * * * *', function(){
     db.get("uptimerecord:irc", function(err, uptimerecord_irc) {
       if(uptime_irc > uptimerecord_irc) {
         db.set('uptimerecord:irc', uptime_irc);
+      }
+    });
+  });
+
+  // Building string for Google Charts used to graph tracker uptime.
+  db.get("uptime:tracker", function(err, uptime_tracker) {
+    // Initialize new timestamp
+    var now = new Date().format("DD.MM");
+    db.llen("trackeruptime", function(err, uptimes_tracker_count) {
+      // Add new timestamp to redis, if there are more than 30 objects pop the oldest value.
+      if(uptimes_tracker_count <= 30) {
+        db.rpush('trackeruptime', now + "|" + uptime_tracker);
+      } else {
+        db.lpop('trackeruptime');
       }
     });
   });

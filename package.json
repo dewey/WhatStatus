@@ -12,6 +12,7 @@
         "cron":"*",
         "time":"*",
         "redis": "*",
-        "request":"*"
+        "request":"*",
+        "date-format-lite":"*"
     }
 }

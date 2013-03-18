@@ -114,9 +114,57 @@ app.get('/', function (req, res) {
 
 app.get('/stats', function (req, res) {
   res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
-  // res.send("respond with a resource");
 })
 
+// JSON Response for uptime values.
+app.get('/api/uptime', function (req, res) {
+  db.get("uptime:site", function(err, uptimeSite) {
+    db.get("uptime:irc", function(err, uptimeIrc) {
+      db.get("uptime:tracker", function(err, uptimeTracker) {
+        res.json({
+          site: uptimeSite,
+          irc: uptimeIrc,
+          tracker: uptimeTracker
+        })
+      });
+    });
+  });
+})
+
+// JSON Response for Uptime records
+app.get('/api/records', function (req, res) {
+  db.get("uptimerecord:site", function(err, uptimeRecordSite) {
+    db.get("uptimerecord:irc", function(err, uptimeRecordIrc) {
+      db.get("uptimerecord:tracker", function(err, uptimeRecordTracker) {
+        res.json({
+          site: uptimeRecordSite,
+          irc: uptimeRecordIrc,
+          tracker: uptimeRecordTracker
+        })
+      });
+    });
+  });
+})
+
+// JSON Response for current component status
+app.get('/api/status', function (req, res) {
+  db.get("site-status", function(err, siteStatus) {
+    db.get("irc-status", function(err, ircStatus) {
+      db.get("tracker-status", function(err, trackerStatus) {
+        res.json({
+          site: siteStatus,
+          irc: ircStatus,
+          tracker: trackerStatus
+        })
+      });
+    });
+  });
+})
+
+// JSON Response for tracker uptime with time stamps
+app.get('/api/uptime/tracker', function (req, res) {
+
+})
 
 // Check all components every minute
 
@@ -130,17 +178,17 @@ new cronJob('1 * * * * *', function(){
     // Get Site Status
     request('https://what.cdaaaa', function (error, response) {
         if (!error && response.statusCode == 200) {
-            console.log("[Sitecheck] Site up");
+            console.log("[Check-Site] Site up");
             db.set("site-status", "1")
             site_status_counter = 0;
-            console.log("[Sitecheck] Status counter: " + site_status_counter);
+            console.log("[Check-Site] Status counter: " + site_status_counter);
         } else {
             site_status_counter++;
-            console.log("[Sitecheck] Status counter: " + site_status_counter);
+            console.log("[Check-Site] Status counter: " + site_status_counter);
             if(site_status_counter > 2) {
               db.set("site-status", "0")
               reset_uptime('site');
-              console.log("[Sitecheck] Site down");
+              console.log("[Check-Site] Site down");
             }
         }
     });
@@ -148,36 +196,36 @@ new cronJob('1 * * * * *', function(){
     // Get Tracker Status
     var client = net.connect(34000, 'tracker.what.cd', function() {
       db.set("tracker-status", "1")
-      console.log('[Trackercheck] Socket started');
+      console.log('[Check-Tracker] Socket started');
       
       tracker_status_counter = 0;
-      console.log("[Trackercheck] Status counter: " + tracker_status_counter);
+      console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
     });
     client.on('end', function() {
-      // console.log('[Trackercheck] Socket closed');
+      // console.log('[Check-Tracker] Socket closed');
     });
     client.on('error', function() {
-      console.log('[Trackercheck] Error');
+      console.log('[Check-Tracker] Error');
       
       tracker_status_counter++;
-      console.log("[Trackercheck] Status counter: " + tracker_status_counter);
+      console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
       if(tracker_status_counter > 2) {
               db.set("tracker-status", "0")
               reset_uptime('tracker');
-              console.log("[Trackercheck] Tracker down");
+              console.log("[[Check-Tracker]] Tracker down");
       }
 
       client.end();
     });
     client.on('timeout', function() {
-      console.log('[Trackercheck] Timeout');
+      console.log('[Check-Tracker] Timeout');
       
       tracker_status_counter++;
-      console.log("[Trackercheck] Status counter: " + tracker_status_counter);
+      console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
       if(tracker_status_counter > 2) {
               db.set("tracker-status", "0")
               reset_uptime('tracker');
-              console.log("[Trackercheck] Tracker down");
+              console.log("[[Check-Tracker]] Tracker down");
       }
 
       client.end();
@@ -186,36 +234,36 @@ new cronJob('1 * * * * *', function(){
     // Get IRC Status
     var client = net.connect(6667, 'irc.what.cd', function() {
       db.set("irc-status", "1")
-      console.log('[IRCcheck] Socket started');
+      console.log('[Check-IRC] Socket started');
 
       irc_status_counter = 0;
-      console.log("[IRCcheck] IRC counter: " + irc_status_counter);
+      console.log("[Check-IRC] IRC counter: " + irc_status_counter);
     });
     client.on('end', function() {
-      // console.log('[IRCcheck] Socket closed');
+      // console.log('[Check-IRC] Socket closed');
     });
     client.on('error', function() {
-      console.log('[IRCcheck] Error');
+      console.log('[Check-IRC] Error');
 
       irc_status_counter++;
-      console.log("[IRCcheck] Status counter: " + irc_status_counter);
+      console.log("[Check-IRC] Status counter: " + irc_status_counter);
       if(irc_status_counter > 2) {
               db.set("irc-status", "0")
               reset_uptime('irc');
-              console.log("[IRCcheck] IRC down");
+              console.log("[Check-IRC] IRC down");
       }
 
       client.end();
     });
     client.on('timeout', function() {
-      console.log('[IRCcheck] Timeout');
+      console.log('[Check-IRC] Timeout');
 
       irc_status_counter++;
-      console.log("[IRCcheck] Status counter: " + irc_status_counter);
+      console.log("[Check-IRC] Status counter: " + irc_status_counter);
       if(irc_status_counter > 2) {
               db.set("irc-status", "0")
               reset_uptime('irc');
-              console.log("[IRCcheck] IRC down");
+              console.log("[Check-IRC] IRC down");
       }
 
       client.end();
@@ -232,6 +280,7 @@ This cronjob is incrementing the uptime counters for the various monitored compo
 and updating the uptime records if the current uptime > the old record.
 */
 new cronJob('1 * * * * *', function(){
+  console.log("[Stats] Cronjob started")
 
   // Hourly Increment Uptime if Component is Up
   db.get("site-status", function(err, site_status) {
@@ -255,51 +304,49 @@ new cronJob('1 * * * * *', function(){
   });
 
   // Update Site Uptime Record
-  db.get("uptime:site", function(err, uptime_site) {
-    db.get("uptimerecord:site", function(err, uptimerecord_site) {
-      if(uptime_site > uptimerecord_site) {
-        db.set('uptimerecord:site', uptime_site);
+  db.get("uptime:site", function(err, uptimeSite) {
+    db.get("uptimerecord:site", function(err, uptimerecordSite) {
+      if(parseInt(uptimeSite) > parseInt(uptimerecordSite)) {
+        db.set('uptimerecord:site', uptimeSite);
       }
     });
   });
 
   // Update Tracker Uptime Record
-  db.get("uptime:tracker", function(err, uptime_tracker) {
-    db.get("uptimerecord:tracker", function(err, uptimerecord_tracker) {
-      if(uptime_tracker > uptimerecord_tracker) {
-        db.set('uptimerecord:tracker', uptime_tracker);
+  db.get("uptime:tracker", function(err, uptimeTracker) {
+    db.get("uptimerecord:tracker", function(err, uptimeRecordTracker) {
+      if(parseInt(uptimeTracker) > parseInt(uptimeRecordTracker)) {
+        console.log("[Stats-Tracker] Tracker Records updated")
+        db.set('uptimerecord:tracker', uptimeTracker)
       }
     });
   });
 
   // Update IRC Uptime Record
-  db.get("uptime:irc", function(err, uptime_irc) {
-    db.get("uptimerecord:irc", function(err, uptimerecord_irc) {
-      if(uptime_irc > uptimerecord_irc) {
-        db.set('uptimerecord:irc', uptime_irc);
+  db.get("uptime:irc", function(err, uptimeIrc) {
+    db.get("uptimerecord:irc", function(err, uptimerecordIrc) {
+      if(parseInt(uptimeIrc) > parseInt(uptimerecordIrc)) {
+        db.set('uptimerecord:irc', uptimeIrc);
       }
     });
   });
-
 
   /*
   Building string for Google Charts used to graph tracker uptime.
   String written to redis: DD.MM|int where int is the current tracker uptime.
   */
-  db.get("uptime:tracker", function(err, uptime_tracker) {
+  db.get("uptime:tracker", function(err, uptimeTracker) {
     // Initialize new timestamp
     var now = new Date().format("DD.MM");
-    db.llen("trackeruptime", function(err, uptimes_tracker_count) {
+    db.llen("trackeruptime", function(err, uptimesTrackerCount) {
       // Add new timestamp to redis, if there are more than 30 objects pop the oldest value.
-      if(uptimes_tracker_count <= 30) {
-        db.rpush('trackeruptime', now + "|" + uptime_tracker);
+      if(uptimesTrackerCount <= 30) {
+        db.rpush('trackeruptime', now + "|" + uptimeTracker);
       } else {
         db.lpop('trackeruptime');
       }
     });
   });
-
-
 }, null, true, "Europe/Vienna");
 
 http.createServer(app).listen(app.get('port'), function(){

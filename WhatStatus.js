@@ -113,7 +113,7 @@ app.get('/', function (req, res) {
 })
 
 app.get('/stats', function (req, res) {
-  res.render('stats', { title:'WhatStatus', site_status:1, tracker_status:0, irc_status:1});
+  res.render('stats', { title:'WhatStatus', siteStatus:1, trackerStatus:0, ircStatus:1});
 })
 
 // JSON Response for uptime values.
@@ -163,14 +163,20 @@ app.get('/api/status', function (req, res) {
 
 // JSON Response for tracker uptime with time stamps
 app.get('/api/uptime/tracker', function (req, res) {
-
+  db.lrange("trackeruptime", 0, -1, function(err, uptimesTrackerHistory) {
+    var jsonObj = {};
+    for(var i = 0; i < uptimesTrackerHistory.length; i++) {
+      var tokens = uptimesTrackerHistory[i].split(':')
+      jsonObj[ tokens[0] ] = tokens[1]
+    }
+    res.json(jsonObj)
+  })
 })
 
 // Check all components every minute
-
-var site_status_counter = 0;
-var tracker_status_counter = 0;
-var irc_status_counter = 0;
+var site_status_counter = 0
+var tracker_status_counter = 0
+var irc_status_counter = 0
 
 // Check Site Components (Cronjob running every minute)
 new cronJob('1 * * * * *', function(){
@@ -337,11 +343,12 @@ new cronJob('1 * * * * *', function(){
   */
   db.get("uptime:tracker", function(err, uptimeTracker) {
     // Initialize new timestamp
-    var now = new Date().format("DD.MM");
+    var now = new Date().format("DDMMYYYYhhmm");
     db.llen("trackeruptime", function(err, uptimesTrackerCount) {
       // Add new timestamp to redis, if there are more than 30 objects pop the oldest value.
       if(uptimesTrackerCount <= 30) {
-        db.rpush('trackeruptime', now + "|" + uptimeTracker);
+        // Pushing Strings to Redis (I'm sorry!)
+        db.rpush('trackeruptime', now + ":" + uptimeTracker);
       } else {
         db.lpop('trackeruptime');
       }

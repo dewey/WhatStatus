@@ -1,11 +1,38 @@
 extends layout
 
 block body-content
+    script
+        $.getJSON("/api/uptime", function(components) {
+            for (var component in components) {
+                $("#stats-uptime-" + component).html(components[component] + "h" + " (" + Math.floor(components[component]/24) +" days)"); 
+            }
+        });
+
+        $.getJSON("/api/records", function(components) {
+            for (var component in components) {
+                $("#stats-uptimerecord-" + component).html(components[component] + "h" + " (" + Math.floor(components[component]/24) +" days)"); 
+            }
+        });
+
     div#content
         h2
             a(href="http://whatstatus.info/") WhatStatus.info
         h3 Uptime
+        ul.stats-list
+            li Site - what.cd
+                span#stats-uptime-site
+            li Tracker - tracker.what.cd
+                span#stats-uptime-tracker
+            li IRC - irc.what-network.net
+                span#stats-uptime-irc
         h3 Uptime Records
+        ul.stats-list
+            li Site - what.cd
+                span#stats-uptimerecord-site
+            li Tracker - tracker.what.cd
+                span#stats-uptimerecord-tracker
+            li IRC - irc.what-network.net
+                span#stats-uptimerecord-irc
         h3 What.CD Tracker Uptime
     a(href="https://twitter.com/#!/StatusWhat")
         img(src="images/twitter.png", alt="Follow us on Twitter!", class="follow-us")

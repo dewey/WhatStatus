@@ -113,7 +113,7 @@ app.get('/', function (req, res) {
 })
 
 app.get('/stats', function (req, res) {
-  res.render('stats', { title:'WhatStatus', siteStatus:1, trackerStatus:0, ircStatus:1});
+  res.render('stats', { title:'WhatStatus' });
 })
 
 // JSON Response for uptime values.
@@ -182,7 +182,7 @@ var irc_status_counter = 0
 new cronJob('1 * * * * *', function(){
     
     // Get Site Status
-    request('https://what.cdaaaa', function (error, response) {
+    request('https://what.cd', function (error, response) {
         if (!error && response.statusCode == 200) {
             console.log("[Check-Site] Site up");
             db.set("site-status", "1")

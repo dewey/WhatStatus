@@ -16,6 +16,16 @@
     margin-top: 50px;
     width: 100%;
 }
+
+.stats-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+ul span {
+    float: right;
+}
+
 .down {
     font-weight: bold;
     color: #ff1600;

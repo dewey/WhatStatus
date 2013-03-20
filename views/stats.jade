@@ -1,6 +1,39 @@
 extends layout
-
 block body-content
+    script
+        var trackerUptimeData = new Array();
+
+        $.getJSON("/api/uptime/tracker", function(uptimes) {
+            for (var uptime in uptimes) {
+                trackerUptimeData.push([uptime.substring(8,10) + ":" + uptime.substring(10), parseInt(uptimes[uptime])]);
+            }
+        });
+
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChartUptime);
+
+        function drawChartUptime() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Date');
+                data.addColumn('number', 'Uptime');
+                data.addRows(trackerUptimeData);
+
+                // console.log(JSON.stringify(trackerUptimeData));
+
+                var options = {
+                chartArea: {left:25,top:30, width:600},
+                colors: ['#ffd900'],
+                legend: {position: 'none'},
+                interpolateNulls: true,
+                hAxis: {baselineColor: '#757575', gridlines: {color: '#757575'}, textStyle: {color: '#757575', fontSize: 10}, showTextEvery: 2},
+                vAxis: {baselineColor: '#757575', gridlines: {color: '#757575'}, textStyle: {color: '#757575', fontSize: 10}},
+                backgroundColor: {fill: '#343434', stroke: '#757575'}
+                };
+
+                var chart = new google.visualization.LineChart(document.getElementById('chart-tracker-uptime'));
+                chart.draw(data, options);
+        } 
+
     script
         $.getJSON("/api/uptime", function(components) {
             for (var component in components) {
@@ -13,7 +46,6 @@ block body-content
                 $("#stats-uptimerecord-" + component).html(components[component] + "h" + " (" + Math.floor(components[component]/24) +" days)"); 
             }
         });
-
     div#content
         h2
             a(href="http://whatstatus.info/") WhatStatus.info
@@ -34,6 +66,6 @@ block body-content
             li IRC - irc.what-network.net
                 span#stats-uptimerecord-irc
         h3 What.CD Tracker Uptime
+        div#chart-tracker-uptime
     a(href="https://twitter.com/#!/StatusWhat")
         img(src="images/twitter.png", alt="Follow us on Twitter!", class="follow-us")
-    div#content

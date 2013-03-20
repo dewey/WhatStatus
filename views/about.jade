@@ -1,0 +1,41 @@
+extends layout
+block body-content
+    div#content
+        h2
+            a(href="http://whatstatus.info/") WhatStatus.info
+        h3 About
+        p The services are checked every minute, if a service is down for more than 3 minutes it's reflected on the site.
+
+        h3 API
+
+        p The following API endpoints are available:
+
+        p.api
+            a(href="api/uptime") api/uptime
+            p.api-description Uptime of all the components. [hours]
+
+        p.api
+            a(href="api/uptime/tracker") api/uptime/tracker
+            p.api-description Tracker uptime history over the last ~30 days. [hours]
+            p.api-description Timestamp: 200320132025 [DDMMYYYYHHMM]
+
+        p.api
+            a(href="api/status") api/status
+            p.api-description The service status. [1 for up, 0 down]
+
+        p.api
+            a(href="api/records") api/records
+            p.api-description The uptime records for the components. [hours]
+
+        h3 Bugs & Feedback
+        p
+            a(href="https://what.cd/user.php?id=160169") What.CD and What.CD IRC Network
+        p
+            a(href="https://github.com/dewey") GitHub
+        p
+            a(href="https://what.cd/forums.php?action=viewthread&threadid=136411") Laboratory Thread on What.CD
+
+
+        
+    a(href="https://twitter.com/#!/StatusWhat")
+        img(src="images/twitter.png", alt="Follow us on Twitter!", class="follow-us")

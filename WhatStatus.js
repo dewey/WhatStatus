@@ -116,6 +116,10 @@ app.get('/stats', function (req, res) {
   res.render('stats', { title:'WhatStatus' });
 })
 
+app.get('/about', function (req, res) {
+  res.render('about', { title:'WhatStatus' });
+})
+
 // JSON Response for uptime values.
 app.get('/api/uptime', function (req, res) {
   db.get("uptime:site", function(err, uptimeSite) {

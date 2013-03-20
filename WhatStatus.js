@@ -124,10 +124,8 @@ new cronJob('1 * * * * *', function(){
     // Get Site Status
     request('https://what.cd', function (error, response) {
         if (!error && response.statusCode == 200) {
-            console.log("[Check-Site] Site up");
             db.set("site-status", "1")
             site_status_counter = 0;
-            console.log("[Check-Site] Status counter: " + site_status_counter);
         } else {
             site_status_counter++;
             console.log("[Check-Site] Status counter: " + site_status_counter);
@@ -142,13 +140,11 @@ new cronJob('1 * * * * *', function(){
     // Get Tracker Status
     var client = net.connect(34000, 'tracker.what.cd', function() {
       db.set("tracker-status", "1")
-      console.log('[Check-Tracker] Socket started');
       
       tracker_status_counter = 0;
       console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
     });
     client.on('end', function() {
-      // console.log('[Check-Tracker] Socket closed');
     });
     client.on('error', function() {
       console.log('[Check-Tracker] Error');
@@ -180,7 +176,6 @@ new cronJob('1 * * * * *', function(){
     // Get IRC Status
     var client = net.connect(6667, 'irc.what.cd', function() {
       db.set("irc-status", "1")
-      console.log('[Check-IRC] Socket started');
 
       irc_status_counter = 0;
       console.log("[Check-IRC] IRC counter: " + irc_status_counter);

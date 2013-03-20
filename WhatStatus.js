@@ -100,6 +100,7 @@ function update() {
   });
 }
 
+// Render the index page
 app.get('/', function (req, res) {
   res.render('index', { title:'WhatStatus',
                         tracker_status:status.tracker.status,
@@ -112,10 +113,12 @@ app.get('/', function (req, res) {
                       });
 })
 
+// Render the Stats page
 app.get('/stats', function (req, res) {
   res.render('stats', { title:'WhatStatus' });
 })
 
+// Render the About page
 app.get('/about', function (req, res) {
   res.render('about', { title:'WhatStatus' });
 })

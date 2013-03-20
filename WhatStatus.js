@@ -142,7 +142,6 @@ new cronJob('1 * * * * *', function(){
       db.set("tracker-status", "1")
       
       tracker_status_counter = 0;
-      console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
     });
     client.on('end', function() {
     });
@@ -178,7 +177,6 @@ new cronJob('1 * * * * *', function(){
       db.set("irc-status", "1")
 
       irc_status_counter = 0;
-      console.log("[Check-IRC] IRC counter: " + irc_status_counter);
     });
     client.on('end', function() {
       // console.log('[Check-IRC] Socket closed');

@@ -143,16 +143,16 @@ p.api-description {
     padding-left: 15px;
 }
 
-#content ul {
+.about-logos {
     list-style: none;
     padding: 0;
 }
 
-#content ul li {
+.about-logos li {
     display: inline;
 }
 
-#content ul li img {
+.about-logos li img {
     height: 50px;
     margin:0 8px;
 }

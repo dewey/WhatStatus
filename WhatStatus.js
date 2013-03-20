@@ -217,6 +217,15 @@ Statistics (hourly)
 This cronjob is incrementing the uptime counters for the various monitored components
 and updating the uptime records if the current uptime > the old record.
 */
+
+// Initialize Redis Keys
+db.set('uptimerecord:site', 0);
+db.set('uptimerecord:tracker', 0);
+db.set('uptimerecord:irc', 0);
+db.set('uptime:site', 0);
+db.set('uptime:tracker', 0);
+db.set('uptime:irc', 0);
+
 new cronJob('0 1 * * *', function(){
   console.log("[Stats] Cronjob started")
 

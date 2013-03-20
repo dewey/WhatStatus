@@ -14,11 +14,11 @@ block body-content
                     $("#status-" + component + "-icon").attr('src', "images/down.png");
                 } else {
                     $("#status-" + component).html("Updating...");
-                    $("#status-" + component + "-icon").attr('src', "images/maintenance.png");
+                    $("#status-" + component + "-icon").attr('src', "images/updating.png");
                 }
             }
         });
-        
+
     div#content
         div.logo
             img(src='#{logo_url}')

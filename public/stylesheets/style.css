@@ -143,4 +143,18 @@ p.api-description {
     padding-left: 15px;
 }
 
+#content ul {
+    list-style: none;
+    padding: 0;
+}
+
+#content ul li {
+    display: inline;
+}
+
+#content ul li img {
+    height: 50px;
+    margin:0 8px;
+}
+
 

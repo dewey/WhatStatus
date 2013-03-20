@@ -33,83 +33,16 @@ app.configure('development', function(){
   app.locals.pretty = true;
 });
 
-var status = {
-  site : {
-    status : "Updating...",
-    url : "images/updating.png"
-  },
-  tracker : {
-    status : "Updating...",
-    url : "images/updating.png"
-  },
-  irc : {
-    status : "Updating...",
-    url : "images/updating.png"
-  }
-}
-
-function setUpVars(component) {
-  component.status = "Up";
-  component.url = "images/up.png";
-}
-
-function setDownVars(component) {
-  component.status = "Down";
-  component.url = "images/down.png";
-}
-
-function setMaintenanceVars(component) {
-  component.status = "Maintenance";
-  component.url = "images/maintenance.png";
-}
 
 // If there's an outtage reset uptime record counter.
 function reset_uptime(component) {
   db.set('uptime:' + component, 0);
 }
 
-function update() {
-  db.get("site-status", function(err, reply) {
-      if(reply == 1) {
-        setUpVars(status.site);
-      } else if (reply == 0) {
-        setDownVars(status.site);
-      } else {
-        setMaintenanceVars(status.site);
-      }
-  });
-
-  db.get("tracker-status", function(err, reply) {
-      if(reply == 1) {
-        setUpVars(status.tracker);
-      } else if (reply == 0) {
-        setDownVars(status.tracker);
-      } else {
-        setMaintenanceVars(status.tracker);
-      }
-  });
-
-  db.get("irc-status", function(err, reply) {
-      if(reply == 1) {
-        setUpVars(status.irc);
-      } else if (reply == 0) {
-        setDownVars(status.irc);
-      } else {
-        setMaintenanceVars(status.irc);
-      }
-  });
-}
-
 // Render the index page
 app.get('/', function (req, res) {
   res.render('index', { title:'WhatStatus',
-                        tracker_status:status.tracker.status,
-                        tracker_status_url:status.tracker.url,
-                        site_status:status.site.status,
-                        site_status_url:status.site.url,
-                        irc_status:status.irc.status,
-                        irc_status_url:status.irc.url,
-                        logo_url:"images/logo.png"
+                        logo_url:"images/logos/logo.png"
                       });
 })
 
@@ -281,9 +214,6 @@ new cronJob('1 * * * * *', function(){
 
       client.end();
     });
-
-    // Get new values from Redis
-    update();
 }, null, true, "Europe/Vienna");
 
 /*
@@ -292,7 +222,7 @@ Statistics (hourly)
 This cronjob is incrementing the uptime counters for the various monitored components
 and updating the uptime records if the current uptime > the old record.
 */
-new cronJob('1 * * * * *', function(){
+new cronJob('0 1 * * *', function(){
   console.log("[Stats] Cronjob started")
 
   // Hourly Increment Uptime if Component is Up

@@ -1,6 +1,24 @@
 extends layout
 
 block body-content
+    script
+        $.getJSON("/api/status", function(components) {
+            for (var component in components) {
+                if(components[component] == 1) {
+                    $("#status-" + component).html("Up");
+                    $("#status-" + component).css("color", "#089a00");
+                    $("#status-" + component + "-icon").attr('src', "images/up.png");
+                } else if (components[component] == 0) {
+                    $("#status-" + component).html("Down");
+                    $("#status-" + component).css("color", "#ff1600");
+                    $("#status-" + component + "-icon").attr('src', "images/down.png");
+                } else {
+                    $("#status-" + component).html("Updating...");
+                    $("#status-" + component + "-icon").attr('src', "images/maintenance.png");
+                }
+            }
+        });
+        
     div#content
         div.logo
             img(src='#{logo_url}')
@@ -8,19 +26,19 @@ block body-content
             table.service-table
                 tr
                     td.icon
-                        img(src='#{site_status_url}')
+                        img(src, id='status-site-icon')
                     td.service Site - what.cd
-                    td.status #{site_status}
+                    td#status-site
                 tr
                     td.icon
-                        img(src='#{tracker_status_url}')
+                        img(src, id='status-tracker-icon')
                     td.service Tracker - tracker.what.cd
-                    td.status #{tracker_status}
+                    td#status-tracker
                 tr
                     td.icon
-                        img(src='#{irc_status_url}')
+                        img(src, id='status-irc-icon')
                     td.service IRC - irc.what-network.net
-                    td.status #{irc_status}
+                    td#status-irc
         div.disclaimer
             p This site is unofficial and is not affiliated with What.cd.
         div.twitter

@@ -216,15 +216,23 @@ This cronjob is incrementing the uptime counters for the various monitored compo
 and updating the uptime records if the current uptime > the old record.
 */
 
-// Initialize Redis Keys
-db.set('uptimerecord:site', 0);
-db.set('uptimerecord:tracker', 0);
-db.set('uptimerecord:irc', 0);
-db.set('uptime:site', 0);
-db.set('uptime:tracker', 0);
-db.set('uptime:irc', 0);
+// Initialize Redis Keys to prevent "null" values
+function initializeRedis(component) {
+  db.exists(component, function(err, reply) {
+    if(reply != 1) {
+      db.set(component, 0);
+    }
+  });
+}
 
-new cronJob('0 * * * * *', function(){
+initializeRedis('uptimerecord:site')
+initializeRedis('uptimerecord:tracker')
+initializeRedis('uptimerecord:irc')
+initializeRedis('uptime:site')
+initializeRedis('uptime:tracker')
+initializeRedis('uptime:irc')
+
+new cronJob('0 * * * *', function(){
   console.log("[Stats] Cronjob started")
 
   // Hourly Increment Uptime if Component is Up

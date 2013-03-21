@@ -224,7 +224,7 @@ db.set('uptime:site', 0);
 db.set('uptime:tracker', 0);
 db.set('uptime:irc', 0);
 
-new cronJob('0 1 * * *', function(){
+new cronJob('0 * * * * *', function(){
   console.log("[Stats] Cronjob started")
 
   // Hourly Increment Uptime if Component is Up
@@ -278,14 +278,14 @@ new cronJob('0 1 * * *', function(){
 
   /*
   Building string for Google Charts used to graph tracker uptime.
-  String written to redis: DD.MM|int where int is the current tracker uptime.
+  String written to redis: DDMMYYYYhhmm|int where int is the current tracker uptime.
   */
   db.get("uptime:tracker", function(err, uptimeTracker) {
     // Initialize new timestamp
     var now = new Date().format("DDMMYYYYhhmm");
     db.llen("trackeruptime", function(err, uptimesTrackerCount) {
-      // Add new timestamp to redis, if there are more than 30 objects pop the oldest value.
-      if(uptimesTrackerCount <= 30) {
+      // Add new timestamp to redis, if there are more than 24 objects pop the oldest value.
+      if(uptimesTrackerCount <= 24) {
         // Pushing Strings to Redis (I'm sorry!)
         db.rpush('trackeruptime', now + ":" + uptimeTracker);
       } else {

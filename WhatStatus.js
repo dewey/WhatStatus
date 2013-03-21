@@ -119,8 +119,7 @@ var tracker_status_counter = 0
 var irc_status_counter = 0
 
 // Check Site Components (Cronjob running every minute)
-new cronJob('1 * * * * *', function(){
-    
+new cronJob('*/1 * * * *', function(){
     // Get Site Status
     request('https://what.cd', function (error, response) {
         if (!error && response.statusCode == 200) {
@@ -236,53 +235,53 @@ new cronJob('0 * * * *', function(){
   console.log("[Stats] Cronjob started")
 
   // Hourly Increment Uptime if Component is Up
-  db.get("site-status", function(err, site_status) {
-    if(site_status != 0) {
+  db.get("site-status", function(err, siteStatus) {
+    if(siteStatus != 0) {
       db.incr('uptime:site');
     }
+
+    // Update Site Uptime Record
+    db.get("uptime:site", function(err, uptimeSite) {
+      db.get("uptimerecord:site", function(err, uptimerecordSite) {
+        if(parseInt(uptimeSite) > parseInt(uptimerecordSite)) {
+          console.log("[Stats-Site] Site Records updated [" + uptimerecordSite + " to " + uptimeSite + "]")
+          db.set('uptimerecord:site', uptimeSite);
+        }
+      });
+    });
   });
 
   // Hourly Increment Uptime if Component is Up
-  db.get("tracker-status", function(err, tracker_status) {
-    if(tracker_status != 0) {
+  db.get("tracker-status", function(err, trackerStatus) {
+    if(trackerStatus != 0) {
       db.incr('uptime:tracker');
     }
-  });
+      // Update Tracker Uptime Record
+      db.get("uptime:tracker", function(err, uptimeTracker) {
+        db.get("uptimerecord:tracker", function(err, uptimerecordTracker) {
+          if(parseInt(uptimeTracker) > parseInt(uptimerecordTracker)) {
+            console.log("[Stats-Tracker] Tracker Records updated [" + uptimerecordTracker + " to " + uptimeTracker + "]")
+            db.set('uptimerecord:tracker', uptimeTracker)
+          }
+        });
+      });
+    });
 
   // Hourly Increment Uptime if Component is Up
-  db.get("irc-status", function(err, irc_status) {
-    if(irc_status != 0) {
+  db.get("irc-status", function(err, ircStatus) {
+    if(ircStatus != 0) {
       db.incr('uptime:irc');
     }
-  });
-
-  // Update Site Uptime Record
-  db.get("uptime:site", function(err, uptimeSite) {
-    db.get("uptimerecord:site", function(err, uptimerecordSite) {
-      if(parseInt(uptimeSite) > parseInt(uptimerecordSite)) {
-        db.set('uptimerecord:site', uptimeSite);
-      }
+      // Update IRC Uptime Record
+      db.get("uptime:irc", function(err, uptimeIrc) {
+        db.get("uptimerecord:irc", function(err, uptimerecordIrc) {
+          if(parseInt(uptimeIrc) > parseInt(uptimerecordIrc)) {
+            console.log("[Stats-Irc] Irc Records updated [" + uptimerecordIrc + " to " + uptimeIrc + "]")
+            db.set('uptimerecord:irc', uptimeIrc);
+          }
+        });
+      });
     });
-  });
-
-  // Update Tracker Uptime Record
-  db.get("uptime:tracker", function(err, uptimeTracker) {
-    db.get("uptimerecord:tracker", function(err, uptimeRecordTracker) {
-      if(parseInt(uptimeTracker) > parseInt(uptimeRecordTracker)) {
-        console.log("[Stats-Tracker] Tracker Records updated")
-        db.set('uptimerecord:tracker', uptimeTracker)
-      }
-    });
-  });
-
-  // Update IRC Uptime Record
-  db.get("uptime:irc", function(err, uptimeIrc) {
-    db.get("uptimerecord:irc", function(err, uptimerecordIrc) {
-      if(parseInt(uptimeIrc) > parseInt(uptimerecordIrc)) {
-        db.set('uptimerecord:irc', uptimeIrc);
-      }
-    });
-  });
 
   /*
   Building string for Google Charts used to graph tracker uptime.

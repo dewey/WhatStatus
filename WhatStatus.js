@@ -256,50 +256,51 @@ new cronJob('0 * * * *', function(){
     if(trackerStatus != 0) {
       db.incr('uptime:tracker');
     }
-      // Update Tracker Uptime Record
-      db.get("uptime:tracker", function(err, uptimeTracker) {
-        db.get("uptimerecord:tracker", function(err, uptimerecordTracker) {
-          if(parseInt(uptimeTracker) > parseInt(uptimerecordTracker)) {
-            console.log("[Stats-Tracker] Tracker Records updated [" + uptimerecordTracker + " to " + uptimeTracker + "]")
-            db.set('uptimerecord:tracker', uptimeTracker)
-          }
-        });
+    // Update Tracker Uptime Record
+    db.get("uptime:tracker", function(err, uptimeTracker) {
+      db.get("uptimerecord:tracker", function(err, uptimerecordTracker) {
+        if(parseInt(uptimeTracker) > parseInt(uptimerecordTracker)) {
+          console.log("[Stats-Tracker] Tracker Records updated [" + uptimerecordTracker + " to " + uptimeTracker + "]")
+          db.set('uptimerecord:tracker', uptimeTracker)
+        }
       });
     });
+
+    /*
+    Building string for Google Charts used to graph tracker uptime.
+    String written to redis: DDMMYYYYhhmm|int where int is the current tracker uptime.
+    */
+    db.get("uptime:tracker", function(err, uptimeTracker) {
+      // Initialize new timestamp
+      var now = new Date().format("DDMMYYYYhhmm");
+      db.llen("trackeruptime", function(err, uptimesTrackerCount) {
+        // Add new timestamp to redis, if there are more than 24 objects pop the oldest value.
+        if(uptimesTrackerCount <= 24) {
+          // Pushing Strings to Redis (I'm sorry!)
+          db.rpush('trackeruptime', now + ":" + uptimeTracker);
+        } else {
+          db.lpop('trackeruptime');
+        }
+      });
+    });
+  });
 
   // Hourly Increment Uptime if Component is Up
   db.get("irc-status", function(err, ircStatus) {
     if(ircStatus != 0) {
       db.incr('uptime:irc');
     }
-      // Update IRC Uptime Record
-      db.get("uptime:irc", function(err, uptimeIrc) {
-        db.get("uptimerecord:irc", function(err, uptimerecordIrc) {
-          if(parseInt(uptimeIrc) > parseInt(uptimerecordIrc)) {
-            console.log("[Stats-Irc] Irc Records updated [" + uptimerecordIrc + " to " + uptimeIrc + "]")
-            db.set('uptimerecord:irc', uptimeIrc);
-          }
-        });
+    // Update IRC Uptime Record
+    db.get("uptime:irc", function(err, uptimeIrc) {
+      db.get("uptimerecord:irc", function(err, uptimerecordIrc) {
+        if(parseInt(uptimeIrc) > parseInt(uptimerecordIrc)) {
+          console.log("[Stats-Irc] Irc Records updated [" + uptimerecordIrc + " to " + uptimeIrc + "]")
+          db.set('uptimerecord:irc', uptimeIrc);
+        }
       });
     });
-
-  /*
-  Building string for Google Charts used to graph tracker uptime.
-  String written to redis: DDMMYYYYhhmm|int where int is the current tracker uptime.
-  */
-  db.get("uptime:tracker", function(err, uptimeTracker) {
-    // Initialize new timestamp
-    var now = new Date().format("DDMMYYYYhhmm");
-    db.llen("trackeruptime", function(err, uptimesTrackerCount) {
-      // Add new timestamp to redis, if there are more than 24 objects pop the oldest value.
-      if(uptimesTrackerCount <= 24) {
-        // Pushing Strings to Redis (I'm sorry!)
-        db.rpush('trackeruptime', now + ":" + uptimeTracker);
-      } else {
-        db.lpop('trackeruptime');
-      }
-    });
   });
+
 }, null, true, "Europe/Vienna");
 
 http.createServer(app).listen(app.get('port'), function(){

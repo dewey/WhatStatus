@@ -172,7 +172,7 @@ new cronJob('*/1 * * * *', function(){
     });
 
     // Get IRC Status
-    var client = net.connect(6667, 'irc.what.cd', function() {
+    var client = net.connect(6667, 'irc.what-network.net', function() {
       db.set("irc-status", "1")
 
       irc_status_counter = 0;

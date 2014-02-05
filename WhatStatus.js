@@ -56,6 +56,11 @@ app.get('/about', function (req, res) {
   res.render('about', { title:'WhatStatus' });
 })
 
+// Render the FAQ page
+app.get('/faq', function (req, res) {
+  res.render('faq', { title:'WhatStatus' });
+})
+
 // JSON Response for uptime values.
 app.get('/api/uptime', function (req, res) {
   db.get("uptime:site", function(err, uptimeSite) {

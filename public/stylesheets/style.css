@@ -157,4 +157,22 @@ p.api-description {
     margin:0 8px;
 }
 
+h4 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.faq-list {
+  margin-top: 0px;
+}
+
+:target {
+  color: yellow;
+}
+
+:target a:visited {
+  color: yellow;
+}
+
+
 

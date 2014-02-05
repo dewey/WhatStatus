@@ -56,6 +56,11 @@ app.get('/about', function (req, res) {
   res.render('about', { title:'WhatStatus' });
 })
 
+// Render the FAQ page
+app.get('/faq', function (req, res) {
+  res.render('faq', { title:'WhatStatus' });
+})
+
 // JSON Response for uptime values.
 app.get('/api/uptime', function (req, res) {
   db.get("uptime:site", function(err, uptimeSite) {
@@ -172,7 +177,7 @@ new cronJob('*/1 * * * *', function(){
     });
 
     // Get IRC Status
-    var client = net.connect(6667, 'irc.what.cd', function() {
+    var client = net.connect(6667, 'irc.what-network.net', function() {
       db.set("irc-status", "1")
 
       irc_status_counter = 0;

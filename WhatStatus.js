@@ -17,6 +17,12 @@ var express = require('express'),
 var app = express();
 var db = redis.createClient();
 
+// Catch connection errors if redis-server isn't running
+db.on("error", function(err) {
+    console.log(err.toString());
+    console.log("       Make sure redis-server is started and listening for connections.");
+});
+
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
@@ -132,7 +138,10 @@ app.get('/api/2/uptime/tracker', function(req, res) {
         var jsonArray = [];
         for (var i = 0; i < uptimesTrackerHistory.length; i++) {
             var tokens = uptimesTrackerHistory[i].split(':')
-            jsonArray.push({timestamp: tokens[0], status: tokens[1]});
+            jsonArray.push({
+                timestamp: tokens[0],
+                status: tokens[1]
+            });
         }
         res.json(jsonArray)
     })
@@ -279,7 +288,7 @@ new cronJob('0 * * * *', function() {
             });
         });
 
-    /*
+        /*
     Building string for Google Charts used to graph tracker uptime.
     String written to redis: DDMMYYYYhhmm|int where int is the current tracker uptime.
     */

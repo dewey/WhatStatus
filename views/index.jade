@@ -1,7 +1,7 @@
 extends layout
 
 block body-content
-    script
+    script(type='text/javascript').
         $.getJSON("/api/status", function(components) {
             for (var component in components) {
                 if(components[component] == 1) {

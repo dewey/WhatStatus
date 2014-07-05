@@ -1,6 +1,6 @@
 extends layout
 block body-content
-    script
+    script(type='text/javascript').
         var trackerUptimeData = new Array();
 
         $.getJSON("/api/uptime/tracker", function(uptimes) {
@@ -34,7 +34,7 @@ block body-content
                 chart.draw(data, options);
         } 
 
-    script
+    script(type='text/javascript').
         $.getJSON("/api/uptime", function(components) {
             for (var component in components) {
                 $("#stats-uptime-" + component).html(components[component] + "h" + " (" + Math.floor(components[component]/24) +" days)"); 

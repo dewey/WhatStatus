@@ -173,7 +173,6 @@ new cronJob('*/1 * * * *', function() {
 
     // Get Tracker Status
     request('http://tracker.what.cd:34000', function(error, response, body) {
-        console.log('[Check-Tracker] Body: ' + body);
         if(!error && body.length > 0 && body.indexOf('is down') == -1) {
             db.set('tracker-status', '1')
             tracker_status_counter = 0;

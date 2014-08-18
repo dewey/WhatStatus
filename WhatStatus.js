@@ -172,32 +172,20 @@ new cronJob('*/1 * * * *', function() {
     });
 
     // Get Tracker Status
-    var client = net.connect(34000, 'tracker.what.cd', function() {
-        db.set('tracker-status', "1")
-        tracker_status_counter = 0;
-    });
-
-    // Socket connection closed
-    client.on('end', function() {
-
-    });
-
-    // Error on connecting to target host
-    client.on('error', function() {
-        tracker_status_counter++;
-        console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
-        if (tracker_status_counter > 2) {
-            db.set('tracker-status', '0')
-            reset_uptime('tracker');
-            console.log("[Check-Tracker] Tracker down");
+    request('http://tracker.what.cd:34000', function(error, response, body) {
+        console.log('[Check-Tracker] Body: ' + body);
+        if(!error && body.length > 0 && body.indexOf('is down') == -1) {
+            db.set('tracker-status', '1')
+            tracker_status_counter = 0;
+        } else {
+            tracker_status_counter++;
+            console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
+            if (tracker_status_counter > 2) {
+                db.set('tracker-status', '0')
+                reset_uptime('tracker');
+                console.log("[Check-Tracker] Tracker down");
+            }
         }
-
-        client.end();
-    });
-
-    client.on('timeout', function() {
-        console.log("[Check-Tracker] Timeout");
-        client.end();
     });
 
     // Get IRC Status

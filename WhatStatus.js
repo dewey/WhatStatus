@@ -12,7 +12,8 @@ var express = require('express'),
     redis = require('redis'),
     cronJob = require('cron').CronJob,
     date = require('date-format-lite'),
-    request = require('request');
+    request = require('request'),
+    dns = require('dns');
 
 var app = express();
 var db = redis.createClient();
@@ -39,6 +40,9 @@ app.configure('development', function() {
     app.locals.pretty = true;
     app.use(express.logger('dev'));
 });
+
+// twiddle this knob to allow this many tracker proxies to be down
+var ALLOWED_DOWN_TRACKER_PROXIES = 0;
 
 
 // If there's an outtage reset uptime record counter.
@@ -171,19 +175,37 @@ new cronJob('*/1 * * * *', function() {
         }
     });
 
+    var setTrackerDown = function() {
+        tracker_status_counter++;
+        console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
+        if (tracker_status_counter > 2) {
+            db.set('tracker-status', '0')
+            reset_uptime('tracker');
+            console.log("[Check-Tracker] Tracker down");
+        }
+    }
+
     // Get Tracker Status
-    request('http://tracker.what.cd:34000', function(error, response, body) {
-        if(!error && body.length > 0 && body.indexOf('is down') == -1) {
+    dns.resolve4('tracker.what.cd', function (err, addresses) {
+        if (err) {
+            console.log('DNS lookup failed for tracker.what.cd');
+            set_tracker_down();
+        }
+
+        var proxies_up = 0;
+        addresses.forEach(function (ip) {
+            request('http://' + ip + ':34000', function(error, response, body) {
+                if (!error && body.length > 0 && body.indexOf('is down') == -1) {
+                    proxies_up++;
+                }
+            });
+        });
+
+        if (proxies_up >= (addresses.length() - ALLOWED_DOWN_TRACKER_PROXIES)) {
             db.set('tracker-status', '1')
             tracker_status_counter = 0;
         } else {
-            tracker_status_counter++;
-            console.log("[Check-Tracker] Status counter: " + tracker_status_counter);
-            if (tracker_status_counter > 2) {
-                db.set('tracker-status', '0')
-                reset_uptime('tracker');
-                console.log("[Check-Tracker] Tracker down");
-            }
+            set_tracker_down();
         }
     });
 
